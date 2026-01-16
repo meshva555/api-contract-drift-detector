@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Drift Watch</title>
+<style>
+body { font-family: Arial; padding: 30px; background: #f2f2f2; }
+.card { background: white; padding: 20px; width: 600px; border-radius: 8px; }
+button { padding: 10px 20px; }
+pre { background: #eee; padding: 10px; }
+.CRITICAL { color: red; }
+.WARNING { color: orange; }
+.SAFE { color: green; }
+</style>
+</head>
+<body>
+
+<h2>Drift Watch – API Contract Drift Detection</h2>
+
+<div class="card">
+<label>API Name:</label>
+<input id="apiName" value="Student API"><br><br>
+
+<button onclick="runCheck()">Run Check</button>
+
+<h3>Status: <span id="status"></span></h3>
+
+<h4>JSON Report:</h4>
+<pre id="jsonReport"></pre>
+
+<a id="downloadLink" target="_blank">Download Report</a>
+</div>
+
+<script>
+function runCheck() {
+    fetch("http://127.0.0.1:8000/run-check", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            api_name: document.getElementById("apiName").value,
+            swagger_v1: "../swagger/student_v1.json",
+            swagger_v2: "../swagger/student_v2.json"
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("status").innerText = data.report.status;
+        document.getElementById("status").className = data.report.status;
+        document.getElementById("jsonReport").innerText =
+            JSON.stringify(data.report, null, 4);
+        document.getElementById("downloadLink").href =
+            "http://127.0.0.1:8000/download/" + data.download;
+        document.getElementById("downloadLink").innerText = "Download JSON Report";
+    });
+}
+</script>
+
+</body>
+</html>
